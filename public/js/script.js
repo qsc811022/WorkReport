@@ -122,33 +122,114 @@ function generateReport() {
   document.getElementById('output').value = result;
 }
 
-async function submitWeeklyReport() {
-  const content = document.getElementById("output").value.trim();
-  if (!content) {
-    alert("內容為空，請先加入每日工時");
+function submitWeeklyReport() {
+  console.log("📦 weeklyLogs:", weeklyLogs); // ✅ debug 用
+  const fullWeekText = document.getElementById('output').value;
+
+  if (!fullWeekText || fullWeekText.trim() === '') {
+    alert('⚠️ 尚未產生週報內容，請先按「預覽週報格式」');
     return;
   }
 
-  const response = await fetch('/api/weeklyReport', {
+  fetch('/api/weeklyReport', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content })
-  });
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ text: fullWeekText })  // 傳整週內容
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('下載失敗');
+      return res.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'weekly_report.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      console.error('週報產出失敗：', err);
+    });
+}
+let weeklyLogs = []; // 全週資料儲存
 
-  if (!response.ok) {
-    alert("❌ 產出失敗！");
-    return;
+// 每天填完按下 "加入"
+function addDailyLog() {
+  const date = document.getElementById('work-date').value;
+  if (!date) return alert('請先選擇日期');
+
+  const timeSlots = document.querySelectorAll('#log-container select');
+  const descriptions = document.querySelectorAll('#log-container input');
+
+  const dailyLogs = [];
+
+  for (let i = 0; i < timeSlots.length; i++) {
+    const slot = timeSlots[i].value;
+    const desc = descriptions[i].value.trim();
+    if (desc !== '') {
+      dailyLogs.push(`${slot}：${desc}`);
+    }
   }
 
-  // 將回傳的 PDF Blob 自動下載
-  const blob = await response.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'weekly_report.pdf';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.URL.revokeObjectURL(url);
+  if (dailyLogs.length === 0) {
+    return alert('尚未填寫任何工作內容');
+  }
+
+  weeklyLogs.push({ date, logs: dailyLogs });
+  alert(`✅ ${date} 工時已加入週報`);
+
+  // 清空欄位
+  document.getElementById('work-date').value = '';
+  document.getElementById('log-container').innerHTML = '';
 }
 
+// 預覽週報格式：寫進 textarea
+function previewReport() {
+  if (weeklyLogs.length === 0) {
+    return alert('⚠️ 尚未加入任何紀錄');
+  }
+
+  let outputText = '';
+
+  for (const entry of weeklyLogs) {
+    outputText += `【${entry.date} 工時紀錄】\n`;
+    outputText += entry.logs.map(l => `- ${l}`).join('\n') + '\n\n';
+  }
+
+  document.getElementById('output').value = outputText.trim();
+}
+
+// 送出週報 PDF（傳送 textarea 文字內容）
+function submitWeeklyReport() {
+  const fullText = document.getElementById('output').value;
+
+  if (!fullText || fullText.trim() === '') {
+    return alert('⚠️ 尚未產生週報內容，請先按「預覽週報格式」');
+  }
+
+  fetch('/api/weeklyReport', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ text: fullText })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('下載失敗');
+      return res.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'weekly_report.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      console.error('週報產出失敗：', err);
+    });
+}

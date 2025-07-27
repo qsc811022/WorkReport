@@ -1,0 +1,69 @@
+# 🛠️ 工程師工時與週報系統 (Work Log + Weekly Report)
+
+本專案是一套用於記錄每日工時並產出週報 PDF 的系統，包含前端 HTML + JS 與 Node.js 後端。目標為幫助工程師更有效率地記錄每日工作內容並自動產出週報，適合作為個人作品集或實務專案展示。
+
+---
+
+## 📌 目前功能 Features
+
+### ✅ 每日工時紀錄 (Daily Work Log)
+
+- [x] 可選擇任一日期記錄工作內容（預設為今日）
+- [x] 每日 09:00 ~ 18:00 分時段輸入任務與補充說明
+- [x] 任務類型（Task Types）：Meeting / Development / Testing / Code Review / Documentation
+- [x] 儲存紀錄至後端 `/api/worklogs/save`（以 `UserId`, `WorkDate`, `HourSlot` 為主鍵）
+- [x] 自動根據日期載入當日資料 `/api/worklogs/by-date/:userId/:date`
+
+### ✅ 週報產出與下載 (Weekly Report Generation)
+
+- [x] 點擊「預覽週報格式」自動整合所有時段內容產生文字格式
+- [x] 點擊「送出本週週報」後：
+  - 將內容送至 `/api/weeklyReport`，後端產出 PDF 並自動下載
+  - 未來可改為儲存至資料庫表格 `WeeklyReports` 中
+
+---
+
+## 📁 專案結構 Project Structure
+
+```plaintext
+.
+├── public/
+│   ├── index.html         # 單一頁面完成所有功能
+│   ├── css/style.css      # 簡易樣式檔（已抽離）
+│   └── js/
+│       ├── config.js      # 基本設定（如 userId 等）
+│       └── script.js      # 前端功能（填寫、預覽、送出）
+├── routes/
+│   ├── worklogs.js        # API：儲存與讀取每日工時
+│   └── weeklyReport.js    # API：產出週報 PDF
+├── db/
+│   └── db.js              # MSSQL 連線設定 (使用 mssql 套件)
+├── server.js              # Node.js 主伺服器
+└── README.md
+
+
+🔧 安裝與執行方式 How to Run
+bash
+複製
+編輯
+# 1. 安裝依賴
+npm install
+
+# 2. 啟動伺服器
+node server.js
+
+# 3. 開啟瀏覽器
+http://localhost:3000
+
+
+🙌 作者 Author
+由 Tedliu 開發，作為轉職後端工程師作品集之一。
+
+若你覺得這個專案對你有幫助，歡迎 ⭐️ Star 一下！
+
+yaml
+複製
+編輯
+
+---  
+如需加上專案圖片（ex: 使用畫面）、資料表 schema、API 文件，我也可以幫你補上，隨時說一聲就行。
