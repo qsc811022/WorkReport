@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const sql = require('mssql');
-
-const db = require('../db'); // 你自己的 db.js 連線檔案
+const { poolPromise, sql } = require('../db'); // ✅ 修正這裡
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
 
 // 儲存週報（新增或更新）
 router.post('/save', async (req, res) => {
@@ -45,7 +45,7 @@ router.post('/submit', async (req, res) => {
   try {
     const { UserId, StartDate, EndDate, ReportText } = req.body;
 
-    const pool = await db; // 取得連線池
+    const pool = await poolPromise; // ✅ 修正這裡
     await pool.request()
       .input('UserId', sql.Int, UserId)
       .input('StartDate', sql.Date, StartDate)
@@ -63,5 +63,27 @@ router.post('/submit', async (req, res) => {
     res.status(500).json({ success: false, message: '寫入失敗', error: err.message });
   }
 });
+router.post('/', (req, res) => {
+  const { content } = req.body;
+
+  const doc = new PDFDocument();
+  let filename = `weekly_report_${Date.now()}.pdf`;
+  filename = encodeURIComponent(filename);
+
+  res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+  res.setHeader('Content-type', 'application/pdf');
+
+  doc.pipe(res);
+  doc.fontSize(16).text("📝 每週工時週報", { align: 'center' });
+  doc.moveDown();
+
+  doc.fontSize(12).text(content, {
+    width: 410,
+    align: 'left'
+  });
+
+  doc.end();
+});
+
 
 module.exports = router;
