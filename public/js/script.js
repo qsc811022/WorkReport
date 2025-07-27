@@ -233,3 +233,26 @@ function submitWeeklyReport() {
       console.error('週報產出失敗：', err);
     });
 }
+
+function previewReport() {
+  if (weeklyLogs.length === 0) {
+    return alert('⚠️ 尚未加入任何紀錄');
+  }
+
+  // 🧠 取得所有日期並排序
+  const dates = weeklyLogs.map(e => e.date).sort();
+  const startDate = dates[0];
+  const endDate = dates[dates.length - 1];
+
+  // ✅ 顯示在指定區塊
+  document.getElementById('week-range').innerText = `📆 週期：${startDate} ～ ${endDate}`;
+
+  // 📝 組合週報內容
+  let outputText = '';
+  for (const entry of weeklyLogs) {
+    outputText += `【${entry.date} 工時紀錄】\n`;
+    outputText += entry.logs.map(log => `- ${log}`).join('\n') + '\n\n';
+  }
+
+  document.getElementById('output').value = outputText.trim();
+}
