@@ -5,3 +5,9 @@ Side Project - 智能工時追蹤與週報產生系統
 前端動態欄位設計（自動產出每日工時報表）
 Node.js API 介接 MSSQL，實現資料儲存與查詢
 自動轉換格式為週報，並預計支援匯出、AI 摘要功能
+
+📦 如果你是開發者，只要修改 `.env` 中的 USER_ID，即可獨立使用這套系統。
+git clone https://github.com/your-name/daily-worklog
+cd daily-worklog
+npm install
+node app.js

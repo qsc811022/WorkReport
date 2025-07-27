@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>每日工時紀錄</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <h2>🕘 每日工時紀錄表</h2>
+    <label for="work-date">選擇日期：</label>
+    <input type="date" id="work-date" />
+    <div id="log-container"></div>
+
+    <button onclick="generateReport()">📄 預覽週報格式</button>
+    <button onclick="saveLogs()">💾 儲存到後端 (之後串接)</button>
+    <button onclick="submitWeeklyReport()">🚀 送出本週週報</button>
+
+    <h3>📝 產出文字格式：</h3>
+    <div id="output"></div>
+    <script src="./js/config.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+
+</html> 
